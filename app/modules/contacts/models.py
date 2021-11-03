@@ -14,7 +14,7 @@ class Contact(Base):
     __tablename__ = "contacts"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
+    name = Column(String, unique=True, nullable=False)
     email = Column(String)
     instagram = Column(String)
     company_id = Column(Integer, ForeignKey('companies.id'))

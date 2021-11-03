@@ -7,6 +7,6 @@ class Song(Base):
     __tablename__ = "songs"
 
     id = Column(Integer, primary_key=True, index=True)
-    link = Column(String)
     name = Column(String)
+    link = Column(String)
     
