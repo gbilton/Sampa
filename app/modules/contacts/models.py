@@ -1,11 +1,15 @@
-# type: ignore
-
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql.schema import ForeignKey, Table
 
 from ...database import Base
 
-
+sent_table = Table('sent', Base.metadata,
+                          Column('Contact ID', ForeignKey(
+                              'contacts.id'), primary_key=True),
+                          Column('Song ID', ForeignKey(
+                              'songs.id'), primary_key=True)
+                          )
 class Contact(Base):
     __tablename__ = "contacts"
 
@@ -13,11 +17,10 @@ class Contact(Base):
     name = Column(String)
     email = Column(String)
     instagram = Column(String)
-    company = Column(String)
-    genre = Column(String)
-    type_ = Column(String)
-    position = Column(String)
-    site = Column(String)
+    company_id = Column(Integer, ForeignKey('companies.id'))
+    genre_id = Column(Integer, ForeignKey('genres.id'))
+    position_id = Column(Integer, ForeignKey('positions.id'))
 
+    songs = relationship('Song', secondary=sent_table, backref='contacts')
 
 

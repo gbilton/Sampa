@@ -20,24 +20,33 @@ class ExcelImporter:
     
     def make_dict(self):
         df = self.df
+        df = df.apply(lambda x: pd.Series(x.dropna().values))
+        print(df.query("Name == '3 Beat Team'"))
+        
         for row in range(len(df)):
             contact_dict = {
-                "name": df.loc[row, "Name"],
-                "email": df.loc[row, "Email"],
-                "instagram": df.loc[row, "Instagram"],
-                "company": df.loc[row, "Company"],
-                "genre": df.loc[row, "Genre"],
-                "type_": df.loc[row, "Type"],
-                "position": df.loc[row, "Position"],
-                "site": df.loc[row, "Site"]
+                "name": str(df.loc[row, "Name"]).strip(),
+                "email": str(df.loc[row, "Email"]).strip(),
+                "instagram": str(df.loc[row, "Instagram"]).strip(),
+                "company": str(df.loc[row, "Company"]).strip(),
+                "genre": str(df.loc[row, "Genre"]).strip(),
+                "type_": str(df.loc[row, "Type"]).strip(),
+                "position": str(df.loc[row, "Position"]).strip(),
+                "site": str(df.loc[row, "Site"]).strip()
             }
         
-            contact_orm = Contact(**contact_dict)
-            self.session.add(contact_orm)
+
+            if not self.exists(contact_dict):
+                contact_orm = Contact(**contact_dict)
+                self.session.add(contact_orm)
         self.session.commit()
         return contact_dict
     
-
+    def exists(self, contact_dict):
+        exists = self.session.query(Contact).filter_by(**contact_dict).first()
+        if not exists:
+            return False
+        return True
 
         
 
