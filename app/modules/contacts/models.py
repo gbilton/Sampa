@@ -17,8 +17,9 @@ class Contact(Base):
     name = Column(String, unique=True, nullable=False)
     email = Column(String)
     instagram = Column(String)
+    roster = Column(String)
+    location = Column(String)
     company_id = Column(Integer, ForeignKey('companies.id'))
-    genre_id = Column(Integer, ForeignKey('genres.id'))
     position_id = Column(Integer, ForeignKey('positions.id'))
 
     songs = relationship('Song', secondary=sent_table, backref='contacts')

@@ -9,10 +9,10 @@ def initial_data():
         "Publisher",
         "Label",
         "Management",
-        "Full service"
+        "Full service",
+        "Artist"
     ]
     genres = [
-        "R&B",
         "Hip Hop",
         "Country",
         "All Genres",

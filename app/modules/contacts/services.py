@@ -51,32 +51,37 @@ class ExcelImporter:
             company_id = self.get_object_id(
                 Company, str(df.loc[row, "Company"]))
 
-            genre_id = self.get_object_id(
-                Genre, str(df.loc[row, "Genre"]))
 
             position_id = self.get_object_id(
                 Position, str(df.loc[row, "Position"]))
 
-            if not company_id and genre_id and position_id:
-                print('Failed')
-                continue
+            genre = self.session.query(Genre).filter_by(
+                name=str(df.loc[row, "Genre"])
+            ).first()
 
             contact_dict = {
                 "name": str(df.loc[row, "Name"]).strip(),
                 "email": str(df.loc[row, "Email"]).strip(),
                 "instagram": str(df.loc[row, "Instagram"]).strip(),
                 "company_id": company_id,
-                "genre_id": genre_id,
                 "position_id": position_id
             }
 
             if contact_dict['name'] == '':
                 continue
-            
+                        
             if not self.exists(Contact, contact_dict):
                 contact_orm = Contact(**contact_dict)
+                if genre:
+                    contact_orm.genres.append(genre)
                 self.session.add(contact_orm)
                 self.session.commit()
+            else:
+                if genre:
+                    contact_orm = self.session.query(Contact).filter_by(name=contact_dict['name']).first()
+                    contact_orm.genres.append(genre)
+                    self.session.commit()
+
         
     
     def get_object_id(self, Obj, obj_name: str) -> int:
@@ -99,7 +104,7 @@ class ExcelImporter:
         
 
 if __name__ == "__main__":
-    path = r"~/Personal/Sampa/Excel/Email Hustle.xlsx"
+    path = r"~/Personal/sampa-back/Excel/Email Hustle.xlsx"
     sheet = 'Emails'
     importer = ExcelImporter(path, sheet)
     importer.create_all()

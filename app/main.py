@@ -22,5 +22,15 @@ def get_db():
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return {}
 
+
+@app.get("/items/")
+async def read_item(name: str, link: str):
+    session = next(get_db())
+    song = models.Song(name=name, link=link)
+    session.add(song)
+    session.commit()
+    return name
+
+ 

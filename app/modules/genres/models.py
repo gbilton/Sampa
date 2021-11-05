@@ -25,5 +25,5 @@ class Genre(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True)
     
-    song_rel = relationship('Song', secondary=genres_songs_table)
-    contanct_rel = relationship('Contact', secondary=genres_contacts_table)
+    songs = relationship('Song', secondary=genres_songs_table)
+    contancts = relationship('Contact', secondary=genres_contacts_table, backref="genres")
