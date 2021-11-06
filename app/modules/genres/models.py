@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import ForeignKey, Table
 
-from ...database import Base
+from app.db.database import Base
 
 
 genres_songs_table = Table('song_genres', Base.metadata,
@@ -25,5 +25,5 @@ class Genre(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True)
     
-    songs = relationship('Song', secondary=genres_songs_table)
-    contancts = relationship('Contact', secondary=genres_contacts_table, backref="genres")
+    songs = relationship('Song', secondary=genres_songs_table, backref='genres')
+    contacts = relationship('Contact', secondary=genres_contacts_table, backref="genres")

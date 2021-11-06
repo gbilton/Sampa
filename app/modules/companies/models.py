@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.expression import null
 from sqlalchemy.sql.schema import ForeignKey
 
-from ...database import Base
+from app.db.database import Base
 
 
 class Company(Base):

@@ -1,4 +1,4 @@
-from .main import get_db
+from .db.database import get_db
 from .modules.categories.models import Category
 from .modules.genres.models import Genre
 from .modules.positions.models import Position
@@ -17,7 +17,8 @@ def initial_data():
         "Country",
         "All Genres",
         "Pop",
-        "EDM"
+        "EDM",
+        "Alternative Pop"
     ]
     positions = [
         "A&R",

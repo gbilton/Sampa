@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import ForeignKey, Table
 
-from ...database import Base
+from app.db.database import Base
 
 sent_table = Table('sent', Base.metadata,
                           Column('Contact ID', ForeignKey(
