@@ -1,17 +1,15 @@
-from typing import List, Optional
+from enum import Enum
 from pydantic import BaseModel
-
 
 
 class ContactCreate(BaseModel):
     name: str
     email: str
     instagram: str
-    company: str
-    genre: str
-    type_: str
-    position: str
-    site: str 
+    company_id: int
+    position_id: int
+    command_id: int
+    email_type_id: int
 
 
 class ContactUpdate:
@@ -20,4 +18,5 @@ class ContactUpdate:
 
 class ContactDelete:
     pass
+
 

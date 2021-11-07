@@ -23,7 +23,6 @@ if __name__ == "__main__":
         message = text.replace('[CONTACT_NAME]', contact.name)
         message = message.replace('[SONG_LINK]', f'<a href="{song.link}">{song.name}</a>')
 
-
         mail = EmailSender(EMAIL_ADDRESS=EMAIL_ADDRESS,
         EMAIL_PASSWORD=EMAIL_PASSWORD,
         contacts=recipients,
@@ -31,3 +30,12 @@ if __name__ == "__main__":
         message=message)
 
         mail.send()
+
+# for song in songs:
+#     for genre in song.genres:
+#         for contact in genre.contacts:
+#             if song not in contact.songs:
+#                 # send_email(contact.email, contact.name, song.name, song.link)
+#                 contact.songs.append(song)
+#                 session.add(contact)
+# session.commit()

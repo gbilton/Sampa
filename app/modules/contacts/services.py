@@ -2,14 +2,17 @@ import pandas as pd
 from pandas.core.frame import DataFrame
 from sqlalchemy.orm.session import make_transient
 from app.modules.categories.models import Category
+from app.modules.comments.models import Comment
+from app.modules.emails.models import Command, EmailType
 
+from app.modules.rosters.models import Roster
 from app.modules.companies.models import Company
 from app.modules.genres.models import Genre
 from app.modules.positions.models import Position
 
 from ...schemas import ContactCreate
 from ...models import Contact
-from ...main import get_db
+from app.db.database import get_db
 
 
 class ExcelImporter:
@@ -22,13 +25,31 @@ class ExcelImporter:
     def df(self):
         df: DataFrame = pd.read_excel(self.path, self.sheet, engine='openpyxl')
         return df
-    
+
+    def create_roster(self):
+        df = self.df
+        df = df.fillna('')
+
+        for row in range(len(df)):
+            name = str(df.loc[row, "Roster"]).strip()
+            if name == '':
+                continue
+            
+            roster_dict = {
+                "name": name
+            }
+
+            if not self.exists(Roster, roster_dict):
+                roster_orm = Roster(**roster_dict)
+                self.session.add(roster_orm)
+                self.session.commit()
+
     def create_company(self):
         df = self.df
         df = df.fillna('')
         
         for row in range(len(df)):
-            category_id = self.get_object_id(Category, df.loc[row, "Type"])
+            category_id = self.get_object_id(Category, df.loc[row, "Category"])
     
             company_dict = {
                 "name": str(df.loc[row, "Company"]).strip(),
@@ -49,47 +70,103 @@ class ExcelImporter:
         
         for row in range(len(df)):
             company_id = self.get_object_id(
-                Company, str(df.loc[row, "Company"]))
+                Company, str(df.loc[row, "Company"]).strip()
+            )
 
+            command_id = self.get_object_id(
+                Command, str(df.loc[row, "Command"]).strip()
+            )
+
+            email_type_id = self.get_object_id(
+                EmailType, str(df.loc[row, "Email Type"]).strip()
+            )
 
             position_id = self.get_object_id(
-                Position, str(df.loc[row, "Position"]))
-
-            genre = self.session.query(Genre).filter_by(
-                name=str(df.loc[row, "Genre"])
-            ).first()
+                Position, str(df.loc[row, "Position"]).strip()
+            )
 
             contact_dict = {
                 "name": str(df.loc[row, "Name"]).strip(),
                 "email": str(df.loc[row, "Email"]).strip(),
                 "instagram": str(df.loc[row, "Instagram"]).strip(),
+                "email_type_id": email_type_id,
+                "command_id": command_id,
                 "company_id": company_id,
                 "position_id": position_id
             }
 
             if contact_dict['name'] == '':
                 continue
-                        
+            
             if not self.exists(Contact, contact_dict):
                 contact_orm = Contact(**contact_dict)
-                if genre:
-                    contact_orm.genres.append(genre)
                 self.session.add(contact_orm)
-                self.session.commit()
-            else:
-                if genre:
-                    contact_orm = self.session.query(Contact).filter_by(name=contact_dict['name']).first()
-                    contact_orm.genres.append(genre)
+                self.session.commit()             
+
+    def create_comment(self):
+        df = self.df
+        df = df.fillna('')
+
+        for row in range(len(df)):
+            contact_name = str(df.loc[row, "Name"]).strip()
+            contact = self.session.query(Contact).filter_by(name=contact_name).first()
+            if not contact:
+                continue
+
+            comment_text = str(df.loc[row, "Comments"]).strip()
+
+            if comment_text != '':
+                comment = Comment(text=comment_text, contact_id=contact.id)
+                exists = self.session.query(Comment).filter_by(text=comment_text, contact_id=contact.id).first()
+                if not exists:
+                    self.session.add(comment)
                     self.session.commit()
 
-        
+    def link_roster(self):
+        df = self.df
+        df = df.fillna('')
+
+        for row in range(len(df)):
+            contact_name = str(df.loc[row, "Name"]).strip()
+            contact = self.session.query(Contact).filter_by(
+                name=contact_name).first()
+            if not contact:
+                continue
+            roster_name = str(df.loc[row, "Roster"]).strip()
+            roster = self.session.query(Roster).filter_by(name=roster_name).first()
+            if not roster:
+                continue
+            if roster not in contact.rosters:
+                contact.rosters.append(roster)
+                self.session.add(contact)
+        self.session.commit()
     
+    def link_genre(self):
+        df = self.df
+        df = df.fillna('')
+
+        for row in range(len(df)):
+            contact_name = str(df.loc[row, "Name"]).strip()
+            contact = self.session.query(Contact).filter_by(
+                name=contact_name).first()
+            if not contact:
+                continue
+            genre_name = str(df.loc[row, "Genre"]).strip()
+            genre = self.session.query(Genre).filter_by(name=genre_name).first()
+            if not genre:
+                continue
+            if genre not in contact.genres:
+                contact.genres.append(genre)
+                self.session.add(contact)
+        self.session.commit()
+
+
+
     def get_object_id(self, Obj, obj_name: str) -> int:
         obj = self.session.query(Obj).filter_by(name=obj_name).first()
         if not obj:
             return None
         return obj.id
-
 
     def exists(self, Obj, obj_dict):
         exists = self.session.query(Obj).filter_by(name=obj_dict['name']).first()
@@ -98,13 +175,15 @@ class ExcelImporter:
         return True
 
     def create_all(self):
+        self.create_roster()
         self.create_company()
         self.create_contact()
-
-        
+        self.create_comment()
+        self.link_genre()
+        self.link_roster()
 
 if __name__ == "__main__":
-    path = r"~/Personal/sampa-back/Excel/Email Hustle.xlsx"
+    path = r"~/Personal/sampa-back/Excel/Hustle.xlsx"
     sheet = 'Emails'
     importer = ExcelImporter(path, sheet)
     importer.create_all()

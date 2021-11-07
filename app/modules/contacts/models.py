@@ -17,11 +17,11 @@ class Contact(Base):
     name = Column(String, unique=True, nullable=False)
     email = Column(String)
     instagram = Column(String)
-    roster = Column(String)
     location = Column(String)
     company_id = Column(Integer, ForeignKey('companies.id'))
     position_id = Column(Integer, ForeignKey('positions.id'))
+    command_id = Column(Integer, ForeignKey('commands.id'))
+    email_type_id = Column(Integer, ForeignKey('email_types.id'))
 
     songs = relationship('Song', secondary=sent_table, backref='contacts')
-
-
+    comments = relationship('Comment')
