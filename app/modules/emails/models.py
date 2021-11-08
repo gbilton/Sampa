@@ -20,4 +20,4 @@ class Command(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, nullable=False)
 
-    contacts = relationship('Contact', backref='commands')
+    contacts = relationship('Contact', backref='command')

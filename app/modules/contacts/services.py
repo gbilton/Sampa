@@ -1,6 +1,6 @@
+from typing import List
 import pandas as pd
 from pandas.core.frame import DataFrame
-from sqlalchemy.orm.session import make_transient
 from app.modules.categories.models import Category
 from app.modules.comments.models import Comment
 from app.modules.emails.models import Command, EmailType
@@ -9,8 +9,8 @@ from app.modules.rosters.models import Roster
 from app.modules.companies.models import Company
 from app.modules.genres.models import Genre
 from app.modules.positions.models import Position
+from app.modules.songs.models import Song
 
-from ...schemas import ContactCreate
 from ...models import Contact
 from app.db.database import get_db
 
@@ -89,6 +89,7 @@ class ExcelImporter:
                 "name": str(df.loc[row, "Name"]).strip(),
                 "email": str(df.loc[row, "Email"]).strip(),
                 "instagram": str(df.loc[row, "Instagram"]).strip(),
+                "location": str(df.loc[row, "Location"]).strip(),
                 "email_type_id": email_type_id,
                 "command_id": command_id,
                 "company_id": company_id,
@@ -160,7 +161,26 @@ class ExcelImporter:
                 self.session.add(contact)
         self.session.commit()
 
+    def create_sent(self, columns: List[str]):
+        df = self.df
+        df = df.fillna('')
 
+        for song_name in columns:
+            for row in range(len(df)):
+                sent = df.loc[row, song_name]
+                contact_name = str(df.loc[row, 'Name']).strip()
+
+                contact = self.session.query(Contact).filter_by(name=contact_name).first()
+                song = self.session.query(Song).filter_by(name=song_name).first()
+                
+                if not contact:
+                    continue
+
+                if sent:
+                    if song not in contact.songs:
+                        contact.songs.append(song)   
+                        self.session.add(contact) 
+        self.session.commit()
 
     def get_object_id(self, Obj, obj_name: str) -> int:
         obj = self.session.query(Obj).filter_by(name=obj_name).first()
@@ -187,5 +207,15 @@ if __name__ == "__main__":
     sheet = 'Emails'
     importer = ExcelImporter(path, sheet)
     importer.create_all()
-   
+
+    songs = [
+        'Objectify Me',
+        'Keep In Touch',
+        'Do You Believe',
+        'Skrt Skrt',
+        'Live Another Day',
+        'Love Me',
+        'Sleep Alone'
+    ]
+    # importer.create_sent(songs)
     

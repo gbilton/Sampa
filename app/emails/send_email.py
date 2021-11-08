@@ -1,41 +1,64 @@
 import os
 
-from .sender import EmailSender
 from app.db.database import get_db
-from app.modules.contacts.models import Contact
-from app.modules.songs.models import Song
+from app.models import *
+
+from .mail import EmailSender, EmailParser
 
 
 if __name__ == "__main__":
-    EMAIL_ADDRESS = os.environ.get('EMAIL_USER')
-    EMAIL_PASSWORD = os.environ.get('EMAIL_PASS')
-    recipients = ['guilhermebilton@hotmail.com']
-    subject = "Friendly Neighborhood Music"
-
-    with open(r'app/emails/templates/sunday_cold.html', 'r') as f:
-        text = f.read()
-    
     session = next(get_db())
-    contacts = session.query(Contact).all()
-    songs = session.query(Song).all()
 
-    for contact, song in zip(contacts, songs):
-        message = text.replace('[CONTACT_NAME]', contact.name)
-        message = message.replace('[SONG_LINK]', f'<a href="{song.link}">{song.name}</a>')
+    EMAIL_ADDRESS = os.environ.get('PJCREW_EMAIL')
+    EMAIL_PASSWORD = os.environ.get('PJCREW_AUTH')
+
+    with open(r'app/emails/templates/Base Email.txt', 'r') as f:
+        template = f.read()
+
+    parser = EmailParser(template)
+
+    song_name = 'Live Another Day'
+    song = session.query(Song).filter_by(name=song_name).first()
+    
+    if not song:
+        raise Exception('Song Not Found!')
+    
+    recipients = parser.get_recipients(song)
+    subject = parser.get_subject(song.name)
+
+    for recipient in recipients:
+        contact = session.query(Contact).filter_by(email=recipient).first()
+        email_type = session.query(EmailType).filter_by(id=contact.email_type_id).first()
+        
+        if not email_type:
+            continue
+        
+        roster_name = None
+        if email_type.name == "Management Email":
+            if not contact.rosters:
+                email_type.name = 'Normal Email'
+            else:
+                roster_name = contact.rosters[0].name
+                
+        
+        message = parser.get_message(
+            email_type=email_type.name,
+            song_link=song.link,
+            contact_name=contact.name,
+            roster_name=roster_name
+        )
 
         mail = EmailSender(EMAIL_ADDRESS=EMAIL_ADDRESS,
         EMAIL_PASSWORD=EMAIL_PASSWORD,
-        contacts=recipients,
+        recipient='guilhermebilton@hotmail.com',
         subject=subject,
         message=message)
+        
+        try:
+            mail.send()
+        except:
+            raise Exception('Failed to send email :(')
 
-        mail.send()
-
-# for song in songs:
-#     for genre in song.genres:
-#         for contact in genre.contacts:
-#             if song not in contact.songs:
-#                 # send_email(contact.email, contact.name, song.name, song.link)
-#                 contact.songs.append(song)
-#                 session.add(contact)
-# session.commit()
+        # contact.songs.append(song)
+        # session.add(contact)
+        # session.commit()

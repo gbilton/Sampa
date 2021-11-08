@@ -1,0 +1,12 @@
+Normal Email
+
+Subject: Cool Demo - [SONG_NAME]
+
+Hey [CONTACT_NAME], 
+
+We just finished this song demo and would love to get your feedback!
+
+[SONG_LINK]
+
+Best regards,
+PJCrew

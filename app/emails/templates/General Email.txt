@@ -1,0 +1,12 @@
+General Email
+
+Subject: Cool Demo - [SONG_NAME]
+
+Hey [CONTACT_NAME], 
+
+We just finished this song demo and would love to get it into the right hands! If there is a better email for that, pls let us know!
+
+[SONG_LINK]
+
+Best regards,
+PJCrew

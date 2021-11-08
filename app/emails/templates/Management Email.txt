@@ -1,0 +1,12 @@
+Management Email
+
+Subject: Cool Demo - [SONG_NAME]
+
+Hey [CONTACT_NAME],
+
+Just finished this song demo that we think might be interesting for [ROSTER_NAME]! Would love to get your feedback on what you think or what you guys are looking for! Let us know!
+
+[SONG_LINK] 
+
+Best regards,
+PJCrew

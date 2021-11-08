@@ -4,7 +4,6 @@ from .models import *
 
 
 class Initializer:
-
     def __init__(self):
         self.session = next(get_db())
 
@@ -21,12 +20,13 @@ class Initializer:
                 self.session.add(obj)
                 self.session.commit()
     
+
 if __name__ == "__main__":
     categories = (Category, [
         "Publisher",
         "Label",
         "Management",
-        "Full service",
+        "Full Service",
         "Artist"
     ])
     genres = (Genre,[
