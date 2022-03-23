@@ -1,5 +1,6 @@
 import os
 
+from app.emails.email_logger import logging
 from app.db.database import get_db
 from app.models import *
 
@@ -12,12 +13,17 @@ if __name__ == "__main__":
     EMAIL_ADDRESS = os.environ.get('PJCREW_EMAIL')
     EMAIL_PASSWORD = os.environ.get('PJCREW_AUTH')
 
+    if not EMAIL_ADDRESS:
+        raise Exception("No Email Address")
+    if not EMAIL_PASSWORD:
+        raise Exception("No Email Password")
+
     with open(r'app/emails/templates/Base Email.txt', 'r') as f:
         template = f.read()
 
     parser = EmailParser(template)
 
-    song_name = 'Live Another Day'
+    song_name = 'Psycho'
     song = session.query(Song).filter_by(name=song_name).first()
     
     if not song:
@@ -39,8 +45,8 @@ if __name__ == "__main__":
                 email_type.name = 'Normal Email'
             else:
                 roster_name = contact.rosters[0].name
-                
-        
+
+
         message = parser.get_message(
             email_type=email_type.name,
             song_link=song.link,
@@ -48,14 +54,20 @@ if __name__ == "__main__":
             roster_name=roster_name
         )
 
+
+        if not message:
+            raise Exception("No Message to send.")
+
+
         mail = EmailSender(EMAIL_ADDRESS=EMAIL_ADDRESS,
         EMAIL_PASSWORD=EMAIL_PASSWORD,
-        recipient='guilhermebilton@hotmail.com',
+        recipient='guilhermebilton@gmail.com',
         subject=subject,
         message=message)
         
         try:
-            mail.send()
+            # mail.send()
+            logging.warning(f"Mail sent to {contact.name}: {recipient}")
         except:
             raise Exception('Failed to send email :(')
 
