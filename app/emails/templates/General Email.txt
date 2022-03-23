@@ -1,10 +1,10 @@
 General Email
 
-Subject: Cool Demo - [SONG_NAME]
+Subject: [SONG_NAME] - Demo
 
-Hey [CONTACT_NAME], 
+Hey [CONTACT_NAME],
 
-We just finished this song demo and would love to get it into the right hands! If there is a better email for that, pls let us know!
+We made this demo and we would like to pitch it and get it into the right hands! If there is a better email for that, pls let us know!
 
 [SONG_LINK]
 

@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     parser = EmailParser(template)
 
-    song_name = 'Psycho'
+    song_name = 'Love Me'
     song = session.query(Song).filter_by(name=song_name).first()
     
     if not song:
@@ -61,13 +61,16 @@ if __name__ == "__main__":
 
         mail = EmailSender(EMAIL_ADDRESS=EMAIL_ADDRESS,
         EMAIL_PASSWORD=EMAIL_PASSWORD,
-        recipient='guilhermebilton@gmail.com',
+        recipient="guilhermebilton@gmail.com",
         subject=subject,
         message=message)
+
+        # To send an email, change song_name, recipient and uncomment code below
         
         try:
+            pass
             # mail.send()
-            logging.warning(f"Mail sent to {contact.name}: {recipient}")
+            # logging.warning(f"Mail Sent. Contact: {contact.name}. Recipient: {recipient}. Song: {song.name}. Email Type: {email_type.name}")
         except:
             raise Exception('Failed to send email :(')
 
