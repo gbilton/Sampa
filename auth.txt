@@ -1,0 +1,7 @@
+How to authorize gmail:
+
+First enable two step verification:
+    Google account -> Security -> Enable two step verification
+
+Second create App Password:    
+    Google account -> Security -> Create App Password
