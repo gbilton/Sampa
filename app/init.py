@@ -1,4 +1,5 @@
 from re import S
+from typing import Any, List, Tuple
 from .db.database import get_db
 from .models import *
 
@@ -20,43 +21,48 @@ class Initializer:
                 self.session.add(obj)
                 self.session.commit()
     
+    def add_bulk_data(self, data: Tuple[Any, List[str]]):
+        for i in data:
+            self.add_data(i[0], i[1])
+
+    
+
+categories = (Category, [
+    "Publisher",
+    "Label",
+    "Management",
+    "Full Service",
+    "Artist"
+])
+genres = (Genre,[
+    "Hip Hop",
+    "Country",
+    "All Genres",
+    "Pop",
+    "EDM",
+    "Alt Pop"
+])
+positions = (Position,[
+    "A&R",
+    "Manager",
+    "Other",
+    "General"
+])
+commands = (Command,[
+    "Not Emailing",
+    "VIP",
+    "Emailing"
+])
+email_types = (EmailType,[
+    "Normal Email",
+    "Management Email",
+    "General Email"
+])
+
+data = [categories, genres, positions, commands, email_types]
+
 
 if __name__ == "__main__":
-    categories = (Category, [
-        "Publisher",
-        "Label",
-        "Management",
-        "Full Service",
-        "Artist"
-    ])
-    genres = (Genre,[
-        "Hip Hop",
-        "Country",
-        "All Genres",
-        "Pop",
-        "EDM",
-        "Alt Pop"
-    ])
-    positions = (Position,[
-        "A&R",
-        "Manager",
-        "Other",
-        "General"
-    ])
-    commands = (Command,[
-        "Not Emailing",
-        "VIP",
-        "Emailing"
-    ])
-    email_types = (EmailType,[
-        "Normal Email",
-        "Management Email",
-        "General Email"
-    ])
-
-    data = [categories, genres, positions, commands, email_types]
-
     initializer = Initializer()
-
     for i in data:
         initializer.add_data(i[0], i[1])
