@@ -342,14 +342,3 @@ if __name__ == "__main__":
     sheet = 'Emails'
     importer = ExcelImporter(path, sheet)
     importer.create_all()
-
-    # songs = [
-    #     'Objectify Me',
-    #     'Keep In Touch',
-    #     'Do You Believe',
-    #     'Skrt Skrt',
-    #     'Live Another Day',
-    #     'Love Me',
-    #     'Sleep Alone'
-    # ]
-    # importer.create_sent(songs)
