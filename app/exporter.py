@@ -1,6 +1,8 @@
 import pandas as pd
 from pandas import DataFrame
 from app.db.database import get_db
+from app.modules.songs.models import Song
+from app.modules.comments.models import Comment
 from app.modules.contacts.models import Contact
 
 
