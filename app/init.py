@@ -40,8 +40,7 @@ genres = (Genre,[
     "All Genres",
     "Pop",
     "EDM",
-    "Alt Pop",
-    "Kids Music"
+    "Alt Pop"
 ])
 positions = (Position,[
     "A&R",
@@ -52,12 +51,16 @@ positions = (Position,[
 commands = (Command,[
     "Not Emailing",
     "VIP",
-    "Emailing"
+    "Emailing",
+    "Email not working",
+    "Spam",
+    "Demo Drop"
 ])
 email_types = (EmailType,[
     "Normal Email",
     "Management Email",
-    "General Email"
+    "General Email",
+    "RAMPAK Email"
 ])
 
 data = [categories, genres, positions, commands, email_types]

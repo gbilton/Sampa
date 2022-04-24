@@ -17,6 +17,7 @@ importlib-metadata==4.8.1
 importlib-resources==5.4.0
 itsdangerous==2.0.1
 Jinja2==3.0.2
+logging==0.4.9.6
 Mako==1.1.5
 MarkupSafe==2.0.1
 mypy==0.910
@@ -39,6 +40,7 @@ sniffio==1.2.0
 SQLAlchemy==1.4.26
 starlette==0.16.0
 toml==0.10.2
+tqdm==4.64.0
 typing-extensions==3.10.0.2
 ujson==4.2.0
 urllib3==1.26.7

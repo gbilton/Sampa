@@ -12,31 +12,37 @@ class EmailParser:
         self.template = template
     
     def get_subject(self, song_name: str) -> str:
-        subject = '[SONG_NAME] - Demo'
+        subject = 'Friendly Neighborhood Music'
         subject = subject.replace('[SONG_NAME]', song_name)
         return subject
 
     def get_message(self, email_type: str, song_link: str, contact_name: str, roster_name: Optional[str] = None):
         template = self.template
         if email_type == 'Normal Email':
-            message = 'We made this demo and we would like to pitch it to you. Would love to get your feedback!'
+            message = "We made this demo and we would like to pitch it to you. Would love to get your feedback on what you think or what you guys are looking for! Let us know!"
             template = self.base_parsing(template=template, contact_name=contact_name, message=message, song_link=song_link)
             return template
         
         elif email_type == 'Management Email':
-            message = 'We made this demo that we think might be interesting for one of your artists! Would love to get your feedback on what you think or what you guys are looking for! Let us know!'
+            message = "We made this demo that we think might be interesting for one of your artists! Would love to get your feedback on what you think or what you guys are looking for! Let us know!"
             template = self.base_parsing(template=template, contact_name=contact_name, message=message, song_link=song_link)
             return template
         
         elif email_type == 'General Email':
-            message = 'We made this demo and we would like to pitch it and get it into the right hands! If there is a better email for that, pls let us know!'
+            message = "We made this demo and we would like to pitch it and get it into the right hands! If there is a better email for that, pls let us know!"
             template = self.base_parsing(template=template, contact_name=contact_name, message=message, song_link=song_link)
             return template
 
-    def base_parsing(self, template, contact_name, message, song_link):
+        elif email_type == 'RAMPAK Email':
+            message = "We are a producer duo called RAMPAK, and we just finished up this demo. We would love to get your feedback!"
+            template = self.base_parsing(template=template, contact_name=contact_name, message=message, song_link=song_link, author="RAMPAK")
+            return template            
+
+    def base_parsing(self, template, contact_name, message, song_link, author="PJCrew"):
             template = template.replace('[CONTACT_NAME]', contact_name)
             template = template.replace('[MESSAGE]', message)
             template = template.replace('[SONG_LINK]', song_link)
+            template = template.replace('[AUTHOR]', author)
             return template
 
     def get_recipients(self, song: Song):

@@ -1,6 +1,6 @@
 General Email
 
-Subject: [SONG_NAME] - Demo
+Subject: Friendly Neighborhood Music
 
 Hey [CONTACT_NAME],
 

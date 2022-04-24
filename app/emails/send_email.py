@@ -1,5 +1,6 @@
 import os
 
+from tqdm import tqdm
 from app.emails.email_logger import logging
 from app.db.database import get_db
 from app.models import *
@@ -23,7 +24,7 @@ if __name__ == "__main__":
 
     parser = EmailParser(template)
 
-    song_name = 'Love Me'
+    song_name = 'Psycho'
     song = session.query(Song).filter_by(name=song_name).first()
     
     if not song:
@@ -32,7 +33,7 @@ if __name__ == "__main__":
     recipients = parser.get_recipients(song)
     subject = parser.get_subject(song.name)
 
-    for recipient in recipients:
+    for recipient in tqdm(recipients):
         contact = session.query(Contact).filter_by(email=recipient).first()
         email_type = session.query(EmailType).filter_by(id=contact.email_type_id).first()
         
@@ -40,11 +41,11 @@ if __name__ == "__main__":
             continue
         
         roster_name = None
-        if email_type.name == "Management Email":
-            if not contact.rosters:
-                email_type.name = 'Normal Email'
-            else:
-                roster_name = contact.rosters[0].name
+        # if email_type.name == "Management Email":
+        #     if not contact.rosters:
+        #         email_type.name = 'Normal Email'
+        #     else:
+        #         roster_name = contact.rosters[0].name
 
 
         message = parser.get_message(
@@ -69,7 +70,7 @@ if __name__ == "__main__":
         
         try:
             pass
-            # mail.send()
+            mail.send()
             # logging.warning(f"Mail Sent. Contact: {contact.name}. Recipient: {recipient}. Song: {song.name}. Email Type: {email_type.name}")
         except:
             raise Exception('Failed to send email :(')

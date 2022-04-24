@@ -5,4 +5,4 @@ Hey [CONTACT_NAME],
 [SONG_LINK]
 
 Best regards,
-PJCrew
+[AUTHOR]

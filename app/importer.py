@@ -185,7 +185,7 @@ class ExcelImporter:
             for genre_name in genre_names:
                 genre = self.session.query(Genre).filter_by(name=genre_name).first()
                 if not genre:
-                    raise Exception(f"Genre {genre_name} not found in db.")
+                    raise Exception(f"Genre {genre_name} not found in db. row {row+2}")
                 if genre not in contact.genres:
                     contact.genres.append(genre)
                     self.session.add(contact)
@@ -340,15 +340,14 @@ class ExcelImporter:
             "Email",
             "Command",
             "Email Type",
-            "Genre",
-            "Category"
+            "Genre"
         ]
         missing_rows = [i+2 for i in self.df[self.df[essential_columns].isnull().any(axis=1)].index]
         if missing_rows:
             raise Exception(f"Missing values in rows {missing_rows}")
 
     def create_all(self):
-        # self._verify_excel()
+        self._verify_excel()
         self._create_roster()
         self._create_company()
         self._create_contact()
@@ -369,7 +368,7 @@ if __name__ == "__main__":
     initializer = Initializer()
     initializer.add_bulk_data(data)
 
-    path = r"~/Personal/sampa-back/Excel/Hustle(1).xlsx"
+    path = r"~/Personal/sampa-back/Excel/Hustle(10).xlsx"
     sheet = 'Emails'
     importer = ExcelImporter(path, sheet)
     importer.create_all()

@@ -1,12 +1,12 @@
 Management Email
 
-Subject: [SONG_NAME] - Demo
+Subject: Friendly Neighborhood Music
 
 Hey [CONTACT_NAME],
 
 We made this demo that we think might be interesting for one of your artists! Would love to get your feedback on what you think or what you guys are looking for! Let us know!
 
-[SONG_LINK] 
+[SONG_LINK]
 
 Best regards,
 PJCrew
