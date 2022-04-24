@@ -40,7 +40,8 @@ genres = (Genre,[
     "All Genres",
     "Pop",
     "EDM",
-    "Alt Pop"
+    "Alt Pop",
+    "Kids Music"
 ])
 positions = (Position,[
     "A&R",

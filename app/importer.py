@@ -1,5 +1,4 @@
 import os
-from plistlib import InvalidFileException
 from typing import List
 import pandas as pd
 from pandas.core.frame import DataFrame
@@ -122,7 +121,7 @@ class ExcelImporter:
             contact_name = str(df.loc[row, "Name"]).strip()
             contact = self.session.query(Contact).filter_by(name=contact_name).first()
             if not contact:
-                continue
+                raise Exception(f"Contact {contact_name} not found in db.")
 
             comment_text = str(df.loc[row, "Comments"]).strip()
 
@@ -142,14 +141,24 @@ class ExcelImporter:
             contact = self.session.query(Contact).filter_by(
                 name=contact_name).first()
             if not contact:
-                continue
+                raise Exception(f"Contact {contact_name} not found in db.")
             roster_name = str(df.loc[row, "Roster"]).strip()
-            roster = self.session.query(Roster).filter_by(name=roster_name).first()
-            if not roster:
+            if roster_name == "":
                 continue
-            if roster not in contact.rosters:
-                contact.rosters.append(roster)
-                self.session.add(contact)
+
+            if "-" in roster_name:
+                roster_names = roster_name.split("-")
+                roster_names = [roster_name.strip() for roster_name in roster_names]
+            else:
+                roster_names = [roster_name]
+
+            for roster_name in roster_names:
+                roster = self.session.query(Roster).filter_by(name=roster_name).first()
+                if not roster:
+                    raise Exception(f"Roster {roster_name} not found in db. Row {row+2}")
+                if roster not in contact.rosters:
+                    contact.rosters.append(roster)
+                    self.session.add(contact)
         self.session.commit()
     
     def _link_contact_genre(self):
@@ -161,14 +170,25 @@ class ExcelImporter:
             contact = self.session.query(Contact).filter_by(
                 name=contact_name).first()
             if not contact:
-                continue
+                raise Exception(f"Contact {contact_name} not found in db.")
             genre_name = str(df.loc[row, "Genre"]).strip()
-            genre = self.session.query(Genre).filter_by(name=genre_name).first()
-            if not genre:
+
+            if genre_name == "":
                 continue
-            if genre not in contact.genres:
-                contact.genres.append(genre)
-                self.session.add(contact)
+            if "-" in genre_name:
+                genres_names = genre_name.split("-")
+                genre_names = [genre.strip() for genre in genres_names]
+            else:
+                genre_names = [genre_name]
+
+
+            for genre_name in genre_names:
+                genre = self.session.query(Genre).filter_by(name=genre_name).first()
+                if not genre:
+                    raise Exception(f"Genre {genre_name} not found in db.")
+                if genre not in contact.genres:
+                    contact.genres.append(genre)
+                    self.session.add(contact)
         self.session.commit()
 
     def _link_song_genre(self):
@@ -176,18 +196,29 @@ class ExcelImporter:
         df = df.fillna('')
         for row in range(len(df)):
             song_name = str(df.loc[row, "Songs"]).strip()
+            if not song_name:
+                continue
             song = self.session.query(Song).filter_by(
                 name=song_name).first()
             if not song:
-                continue
+                raise Exception(f"Song {song_name} not found in db.")
             genre_name = str(df.loc[row, "Song Genres"]).strip()
-            genre = self.session.query(Genre).filter_by(
-                name=genre_name).first()
-            if not genre:
+            if not genre_name:
                 continue
-            if genre not in song.genres:
-                song.genres.append(genre)
-                self.session.add(song)
+            if "-" in genre_name:
+                genres_names = genre_name.split("-")
+                genre_names = [genre.strip() for genre in genres_names]
+            else: 
+                genre_names = [genre_name]
+
+            for genre_name in genre_names:
+                genre = self.session.query(Genre).filter_by(
+                    name=genre_name).first()
+                if not genre:
+                    raise Exception(f"genre {genre} not found in database. row {row+3}")
+                if genre not in song.genres:
+                    song.genres.append(genre)
+                    self.session.add(song)
         self.session.commit()
 
     def _link_sent_songs(self):
@@ -200,7 +231,7 @@ class ExcelImporter:
             contact = self.session.query(Contact).filter_by(
                 name=contact_name).first()
             if not contact:
-                continue
+                raise Exception(f"Contact {contact_name} not found in db.")
             for song in songs:
                 try:
                     sent = str(df.loc[row, f"{song.name}"]).strip()
@@ -249,7 +280,7 @@ class ExcelImporter:
                 song = self.session.query(Song).filter_by(name=song_name).first()
                 
                 if not contact:
-                    continue
+                    raise Exception(f"Contact {contact_name} not found in db.")
 
                 if sent:
                     if song not in contact.songs:
@@ -277,7 +308,7 @@ class ExcelImporter:
     def _verify_extension(self):
         _, file_extension = os.path.splitext(self.path)
         if file_extension != ".xlsx":
-            raise InvalidFileException("File type not .xlsx")
+            raise Exception("File type not .xlsx")
 
     def _verify_columns(self):
         expected_columns = [

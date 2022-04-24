@@ -3,8 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import ForeignKey, Table
 
 from app.db.database import Base
-from app.models import Song
-from app.models import Comment
+
 
 sent_table = Table('sent', Base.metadata,
                           Column('Contact ID', ForeignKey(
