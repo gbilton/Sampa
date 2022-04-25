@@ -26,11 +26,12 @@ if __name__ == "__main__":
 
     song_name = 'Psycho'
     song = session.query(Song).filter_by(name=song_name).first()
+    all_genre = session.query(Genre).filter_by(name="All Genres").first()
     
     if not song:
         raise Exception('Song Not Found!')
     
-    recipients = parser.get_recipients(song)
+    recipients = parser.get_recipients(song, all_genre.contacts)
     subject = parser.get_subject(song.name)
 
     for recipient in tqdm(recipients):

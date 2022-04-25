@@ -2,7 +2,9 @@ import smtplib
 import re
 
 from email.message import EmailMessage
-from typing import Optional
+from typing import List, Optional
+from app.modules.contacts.models import Contact
+from app.modules.genres.models import Genre
 
 from app.modules.songs.models import Song
 
@@ -45,7 +47,7 @@ class EmailParser:
             template = template.replace('[AUTHOR]', author)
             return template
 
-    def get_recipients(self, song: Song):
+    def get_recipients(self, song: Song, all_genre_contacts: List[Contact]):
         recipients = []
         for genre in song.genres:
             for contact in genre.contacts:
@@ -55,6 +57,11 @@ class EmailParser:
                     if song not in contact.songs:
                         if self.validate_email(contact.email):
                             recipients.append(contact.email)
+        #Include Contacts with All Genres
+        for contact in all_genre_contacts:
+            if song not in contact.songs:
+                if self.validate_email(contact.email):
+                    recipients.append(contact.email)
         return list(set(recipients))
 
     def validate_email(self, email):
