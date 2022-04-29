@@ -11,9 +11,6 @@ class Company(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, nullable=False)
-    category_id = Column(Integer, ForeignKey('categories.id'))
-    
+    category_id = Column(Integer, ForeignKey("categories.id"))
+
     contacts = relationship("Contact")
-
-
-

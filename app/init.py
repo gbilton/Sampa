@@ -13,57 +13,31 @@ class Initializer:
         if exists:
             return True
         return False
-        
+
     def add_data(self, Obj, data):
         for name in data:
             if not self.exists(Obj, name):
                 obj = Obj(name=name)
                 self.session.add(obj)
                 self.session.commit()
-    
+
     def add_bulk_data(self, data: Tuple[Any, List[str]]):
         for i in data:
             self.add_data(i[0], i[1])
 
-    
 
-categories = (Category, [
-    "Publisher",
-    "Label",
-    "Management",
-    "Full Service",
-    "Artist"
-])
-genres = (Genre,[
-    "Hip Hop",
-    "Country",
-    "All Genres",
-    "Pop",
-    "EDM",
-    "Alt Pop"
-])
-positions = (Position,[
-    "A&R",
-    "Manager",
-    "Other",
-    "General"
-])
-commands = (Command,[
-    "Not Emailing",
-    "VIP",
-    "Emailing",
-    "Email not working",
-    "Spam",
-    "Demo Drop"
-])
-email_types = (EmailType,[
-    "Normal Email",
-    "Management Email",
-    "General Email",
-    "RAMPAK Email"
-])
+categories = (Category, ["Publisher", "Label", "Management", "Full Service", "Artist"])
+genres = (Genre, ["Hip Hop", "Country", "All Genres", "Pop", "EDM", "Alt Pop"])
+commands = (
+    Command,
+    ["Not Emailing", "VIP", "Emailing", "Email not working", "Spam", "Demo Drop"],
+)
+email_types = (
+    EmailType,
+    ["Normal Email", "Management Email", "General Email", "RAMPAK Email"],
+)
 
-data = [categories, genres, positions, commands, email_types]
+data = [categories, genres, commands, email_types]
 
 
 if __name__ == "__main__":

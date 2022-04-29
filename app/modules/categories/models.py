@@ -10,4 +10,4 @@ class Category(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True)
 
-    companies = relationship('Company')
+    companies = relationship("Company")

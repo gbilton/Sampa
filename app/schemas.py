@@ -1,1 +1,1 @@
-from .modules.contacts.schemas import * 
+from .modules.contacts.schemas import *

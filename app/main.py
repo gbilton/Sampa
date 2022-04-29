@@ -12,9 +12,3 @@ app = FastAPI()
 
 app.include_router(routes.song_router)
 app.include_router(routes.genre_router)
-
-
-
-
-
- 

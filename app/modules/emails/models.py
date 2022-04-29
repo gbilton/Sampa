@@ -11,7 +11,7 @@ class EmailType(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, nullable=False)
 
-    contacts = relationship('Contact', backref='email_types')
+    contacts = relationship("Contact", backref="email_types")
 
 
 class Command(Base):
@@ -20,4 +20,12 @@ class Command(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, nullable=False)
 
-    contacts = relationship('Contact', backref='command')
+    contacts = relationship("Contact", backref="command")
+
+
+class EmailAdress(Base):
+    __tablename__ = "email_addresses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    address = Column(String, unique=True, nullable=False)
+    contact_id = Column(Integer, ForeignKey("contacts.id"))

@@ -1,4 +1,4 @@
-# type: ignore 
+# type: ignore
 
 from sqlalchemy import create_engine
 

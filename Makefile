@@ -9,3 +9,9 @@ import:
 
 generate:
 	python -m app.exporter
+
+review:
+	alembic revision --autogenerate
+
+upgrade:
+	alembic upgrade head
