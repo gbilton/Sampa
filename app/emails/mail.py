@@ -4,6 +4,7 @@ import re
 from email.message import EmailMessage
 from typing import List, Optional
 from app.modules.contacts.models import Contact
+from app.modules.emails.models import EmailAddress
 
 from app.modules.songs.models import Song
 
@@ -86,21 +87,27 @@ class EmailParser:
     def _get_valid_emails(self, song: Song, contacts: List[Contact]) -> List[str]:
         recipients = []
         for contact in contacts:
-            if not self._validate_contact(contact, song):
-                continue
-            for email_address in contact.emails:
-                if self.validate_email(email_address):
-                    recipients.append(email_address)
-            return recipients
+            for email in contact.emails:
+                if not self._validate_email_command(email):
+                    continue
+                if not self._validate_email_string(email.address):
+                    continue
+                if self._check_if_already_sent(email, song):
+                    continue
+                recipients.append(email.address)
+        return recipients
 
-    def _validate_contact(self, contact, song):
-        if contact.command.name != "Emailing":
-            return False
-        if song in contact.songs:
+    def _check_if_already_sent(self, email: EmailAddress, song: Song) -> bool:
+        if song in email.songs:
+            return True
+        return False
+
+    def _validate_email_command(self, email: EmailAddress) -> bool:
+        if email.command.name != "Emailing":
             return False
         return True
 
-    def validate_email(self, email):
+    def _validate_email_string(self, email: EmailAddress) -> bool:
         pattern = r"[^@]+@[^@]+\.[^@]+"
         if not re.match(pattern, email):
             return False

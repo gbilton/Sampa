@@ -35,10 +35,9 @@ if __name__ == "__main__":
     subject = parser.get_subject(song.name)
 
     for recipient in tqdm(recipients):
-        contact = session.query(Contact).filter_by(email=recipient).first()
-        email_type = (
-            session.query(EmailType).filter_by(id=contact.email_type_id).first()
-        )
+        email = session.query(EmailAddress).filter_by(address=recipient).first()
+        contact = email.contact
+        email_type = session.query(EmailType).filter_by(id=email.email_type_id).first()
 
         if not email_type:
             continue
@@ -74,6 +73,6 @@ if __name__ == "__main__":
         except:
             raise Exception("Failed to send email :(")
 
-        contact.songs.append(song)
-        session.add(contact)
+        email.songs.append(song)
+        session.add(email)
         session.commit()

@@ -4,13 +4,14 @@ import pandas as pd
 from pandas.core.frame import DataFrame
 from app.modules.categories.models import Category
 from app.modules.comments.models import Comment
-from app.modules.emails.models import Command, EmailAdress, EmailType
+from app.modules.emails.models import Command, EmailAddress, EmailType
 from app.modules.emails.schemas import EmailAddressCreate
 
 from app.modules.rosters.models import Roster
 from app.modules.companies.models import Company
 from app.modules.genres.models import Genre
 from app.modules.songs.models import Song
+from app.modules.emails.models import EmailAddress
 
 from .models import Contact
 from app.db.database import get_db
@@ -79,21 +80,11 @@ class ExcelImporter:
                 Company, str(df.loc[row, "Company"]).strip()
             )
 
-            command_id = self._get_object_id(
-                Command, str(df.loc[row, "Command"]).strip()
-            )
-
-            email_type_id = self._get_object_id(
-                EmailType, str(df.loc[row, "Email Type"]).strip()
-            )
-
-            if not email_type_id:
-                raise Exception(f"Contact in row {row + 2} Email Type not in db.")
+            if not company_id:
+                raise Exception(f"Contact in row {row + 2} Company not in db.")
 
             contact_dict = {
                 "name": str(df.loc[row, "Name"]).strip(),
-                "email_type_id": email_type_id,
-                "command_id": command_id,
                 "company_id": company_id,
             }
 
@@ -119,8 +110,23 @@ class ExcelImporter:
                     f"Email address without specified contact on row {row+2}"
                 )
 
+            command_id = self._get_object_id(
+                Command, str(df.loc[row, "Command"]).strip()
+            )
+            if not command_id:
+                raise Exception(f"Contact in row {row + 2} Command not in db.")
+
+            email_type_id = self._get_object_id(
+                EmailType, str(df.loc[row, "Email Type"]).strip()
+            )
+            if not email_type_id:
+                raise Exception(f"Contact in row {row + 2} Email Type not in db.")
+
             email_address = EmailAddressCreate(
-                contact_id=contact_id, address=str(df.loc[row, "Email"]).strip()
+                contact_id=contact_id,
+                address=str(df.loc[row, "Email"]).strip(),
+                email_type_id=email_type_id,
+                command_id=command_id,
             )
 
             if email_address.address == "":
@@ -129,7 +135,7 @@ class ExcelImporter:
             if email_address.address not in [email.address for email in emails]:
                 emails.append(email_address)
 
-        self.session.add_all([EmailAdress(**email.dict()) for email in emails])
+        self.session.add_all([EmailAddress(**email.dict()) for email in emails])
         self.session.commit()
 
     def _create_comment(self):
@@ -246,10 +252,14 @@ class ExcelImporter:
 
         songs = self.session.query(Song).all()
         for row in range(len(df)):
-            contact_name = str(df.loc[row, "Name"]).strip()
-            contact = self.session.query(Contact).filter_by(name=contact_name).first()
-            if not contact:
-                raise Exception(f"Contact {contact_name} not found in db.")
+            email_address = str(df.loc[row, "Email"]).strip()
+            email = (
+                self.session.query(EmailAddress)
+                .filter_by(address=email_address)
+                .first()
+            )
+            if not email:
+                raise Exception(f"Email {email_address} not found in db.")
             for song in songs:
                 try:
                     sent = str(df.loc[row, f"{song.name}"]).strip()
@@ -258,9 +268,9 @@ class ExcelImporter:
                         f"There is no column named {song.name}, tip: check spelling"
                     )
                 if sent:
-                    if song not in contact.songs:
-                        contact.songs.append(song)
-                        self.session.add(contact)
+                    if song not in email.songs:
+                        email.songs.append(song)
+                        self.session.add(email)
         self.session.commit()
 
     def _create_songs(self):
@@ -290,20 +300,22 @@ class ExcelImporter:
         for song_name in columns:
             for row in range(len(df)):
                 sent = df.loc[row, song_name]
-                contact_name = str(df.loc[row, "Name"]).strip()
+                email_address = str(df.loc[row, "Email"]).strip()
 
-                contact = (
-                    self.session.query(Contact).filter_by(name=contact_name).first()
+                email = (
+                    self.session.query(EmailAddress)
+                    .filter_by(name=email_address)
+                    .first()
                 )
                 song = self.session.query(Song).filter_by(name=song_name).first()
 
-                if not contact:
-                    raise Exception(f"Contact {contact_name} not found in db.")
+                if not email:
+                    raise Exception(f"Contact {email_address} not found in db.")
 
                 if sent:
-                    if song not in contact.songs:
-                        contact.songs.append(song)
-                        self.session.add(contact)
+                    if song not in email.songs:
+                        email.songs.append(song)
+                        self.session.add(email)
         self.session.commit()
 
     def _get_object_id(self, Obj, obj_name: str) -> int:
@@ -393,7 +405,7 @@ if __name__ == "__main__":
     initializer = Initializer()
     initializer.add_bulk_data(data)
 
-    path = r"~/Personal/sampa-back/Excel/HUSTLE(15).xlsx"
+    path = r"~/Personal/sampa-back/Excel/HUSTLE(24).xlsx"
     sheet = "Emails"
     importer = ExcelImporter(path, sheet)
     importer.create_all()

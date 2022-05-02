@@ -1,9 +1,7 @@
 import pandas as pd
 from pandas import DataFrame
 from app.db.database import get_db
-from app.modules.songs.models import Song
-from app.modules.comments.models import Comment
-from app.modules.contacts.models import Contact
+from app.modules.emails.models import EmailAddress
 
 
 class ExcelExporter:
@@ -22,11 +20,15 @@ class ExcelExporter:
         df = df.fillna("")
 
         for row in range(len(df)):
-            contact_name = str(df.loc[row, "Name"]).strip()
-            contact = self.session.query(Contact).filter_by(name=contact_name).first()
-            if not contact:
+            email_address = str(df.loc[row, "Email"]).strip()
+            email = (
+                self.session.query(EmailAddress)
+                .filter_by(address=email_address)
+                .first()
+            )
+            if not email:
                 continue
-            for sent_song in contact.songs:
+            for sent_song in email.songs:
                 try:
                     sent = str(df.loc[row, f"{sent_song.name}"]).strip()
                 except KeyError:
@@ -40,7 +42,7 @@ class ExcelExporter:
 
 
 if __name__ == "__main__":
-    path = r"~/Personal/sampa-back/Excel/HUSTLE(15).xlsx"
+    path = r"~/Personal/sampa-back/Excel/HUSTLE(24).xlsx"
     sheet = "Emails"
     exporter = ExcelExporter(path, sheet)
     exporter.export_excel()
