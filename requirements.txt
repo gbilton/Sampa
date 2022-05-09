@@ -17,7 +17,7 @@ importlib-metadata==4.8.1
 importlib-resources==5.4.0
 itsdangerous==2.0.1
 Jinja2==3.0.2
-logging==0.4.9.6
+# logging==0.4.9.6
 Mako==1.1.5
 MarkupSafe==2.0.1
 mypy==0.910

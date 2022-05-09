@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     parser = EmailParser(template)
 
-    song_name = "Sleep Alone"
+    song_name = "Live Another Day"
     song = session.query(Song).filter_by(name=song_name).first()
     all_genre = session.query(Genre).filter_by(name="All Genres").first()
 
@@ -45,7 +45,8 @@ if __name__ == "__main__":
         roster_name = None
 
         message = parser.get_message(
-            email_type=email_type.name,  # HACK: When song genre == "EDM", change to "RAMPAK Email"
+            # email_type=email_type.name,  # HACK: When song genre == "EDM", change to "RAMPAK Email"
+            email_type="RAMPAK Email",
             song_link=song.link,
             contact_name=contact.name,
             roster_name=roster_name,
