@@ -1,7 +1,7 @@
-from re import S
 from typing import Any, List, Tuple
+
 from .db.database import get_db
-from .models import *
+from .models import Category, Command, EmailType, Genre
 
 
 class Initializer:

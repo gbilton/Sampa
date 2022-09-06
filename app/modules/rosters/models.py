@@ -4,7 +4,6 @@ from sqlalchemy.sql.schema import ForeignKey, Table
 
 from app.db.database import Base
 
-
 roster_table = Table(
     "roster_rel",
     Base.metadata,

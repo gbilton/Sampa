@@ -1,20 +1,20 @@
 import os
 from typing import List
+
 import pandas as pd
 from pandas.core.frame import DataFrame
+
+from app.db.database import get_db
 from app.modules.categories.models import Category
 from app.modules.comments.models import Comment
+from app.modules.companies.models import Company
 from app.modules.emails.models import Command, EmailAddress, EmailType
 from app.modules.emails.schemas import EmailAddressCreate
-
-from app.modules.rosters.models import Roster
-from app.modules.companies.models import Company
 from app.modules.genres.models import Genre
+from app.modules.rosters.models import Roster
 from app.modules.songs.models import Song
-from app.modules.emails.models import EmailAddress
 
 from .models import Contact
-from app.db.database import get_db
 
 
 class ExcelImporter:
@@ -236,7 +236,8 @@ class ExcelImporter:
                 genre_names = [genre.strip() for genre in genres_names]
             else:
                 genre_names = [genre_name]
-
+            if "EDM" in genre_names and len(genre_names) > 1:
+                raise Exception("EDM has to be unique genre in a song.")
             for genre_name in genre_names:
                 genre = self.session.query(Genre).filter_by(name=genre_name).first()
                 if not genre:
@@ -396,6 +397,7 @@ class ExcelImporter:
 
 if __name__ == "__main__":
     from app.init import Initializer, data
+
     from .db.database import engine
 
     engine.execute(
@@ -405,7 +407,7 @@ if __name__ == "__main__":
     initializer = Initializer()
     initializer.add_bulk_data(data)
 
-    path = r"~/Personal/sampa-back/Excel/HUSTLE(26).xlsx"
+    path = r"~/Personal/sampa-back/Excel/HUSTLE(30).xlsx"
     sheet = "Emails"
     importer = ExcelImporter(path, sheet)
     importer.create_all()

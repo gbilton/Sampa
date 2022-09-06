@@ -1,9 +1,11 @@
 from typing import List
-from app.exceptions import NotFound
+
 from app.db.database import get_db
+from app.exceptions import NotFound
 from app.modules.songs.schemas import SongResponse
-from .models import Song
+
 from ..genres.models import Genre
+from .models import Song
 
 
 class SongService:
@@ -40,3 +42,11 @@ class SongService:
 
         response = SongResponse.from_orm(song)
         return response
+
+    @classmethod
+    def get_song(cls, song_name: str):
+        session = next(get_db())
+        song = session.query(Song).filter_by(name=song_name).first()
+        if not song:
+            raise Exception("Song Not Found!")
+        return song

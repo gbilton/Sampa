@@ -1,12 +1,12 @@
+# noqa
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import ForeignKey, Table
 
 from app.db.database import Base
-from app.modules.contacts.models import Contact
-from app.modules.comments.models import Comment
-from app.modules.songs.models import Song
-
+from app.modules.comments.models import Comment  # noqa: F401
+from app.modules.contacts.models import Contact  # noqa: F401
+from app.modules.songs.models import Song  # noqa: F401
 
 sent_table = Table(
     "sent",

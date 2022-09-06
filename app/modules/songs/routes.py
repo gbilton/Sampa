@@ -1,13 +1,11 @@
 from typing import List
-from fastapi import APIRouter
-from fastapi import HTTPException
+
+from fastapi import APIRouter, HTTPException
 
 from app.exceptions import NotFound
-
 from app.modules.songs.services import SongService
 
 from .schemas import SongResponse
-
 
 song_router = APIRouter()
 song_service = SongService()

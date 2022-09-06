@@ -1,5 +1,6 @@
 import pandas as pd
 from pandas import DataFrame
+
 from app.db.database import get_db
 from app.modules.emails.models import EmailAddress
 
@@ -38,11 +39,11 @@ class ExcelExporter:
                 if not sent:
                     df.loc[row, f"{sent_song.name}"] = "Sent"
 
-        df.to_excel("Excel/hustle_test.xlsx", "Emails")
+        df.to_excel("Excel/exported_hustle.xlsx", "Emails")
 
 
 if __name__ == "__main__":
-    path = r"~/Personal/sampa-back/Excel/HUSTLE(26).xlsx"
+    path = r"~/Personal/sampa-back/Excel/HUSTLE(30kw).xlsx"
     sheet = "Emails"
     exporter = ExcelExporter(path, sheet)
     exporter.export_excel()

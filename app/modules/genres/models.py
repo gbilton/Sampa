@@ -4,7 +4,6 @@ from sqlalchemy.sql.schema import ForeignKey, Table
 
 from app.db.database import Base
 
-
 genres_songs_table = Table(
     "song_genres",
     Base.metadata,

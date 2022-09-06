@@ -1,10 +1,9 @@
 from typing import List
-from fastapi import APIRouter
-from fastapi import HTTPException
+
+from fastapi import APIRouter, HTTPException
 
 from app.exceptions import NotFound
 from app.modules.genres.services import GenreService
-
 
 genre_router = APIRouter()
 genre_service = GenreService()
