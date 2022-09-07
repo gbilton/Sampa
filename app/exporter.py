@@ -22,11 +22,7 @@ class ExcelExporter:
 
         for row in range(len(df)):
             email_address = str(df.loc[row, "Email"]).strip()
-            email = (
-                self.session.query(EmailAddress)
-                .filter_by(address=email_address)
-                .first()
-            )
+            email = self.session.query(EmailAddress).filter_by(address=email_address).first()
             if not email:
                 continue
             for sent_song in email.songs:
@@ -43,7 +39,7 @@ class ExcelExporter:
 
 
 if __name__ == "__main__":
-    path = r"~/Personal/sampa-back/Excel/HUSTLE(30kw).xlsx"
+    path = r"~/Personal/sampa-back/Excel/HUSTLE(32).xlsx"
     sheet = "Emails"
     exporter = ExcelExporter(path, sheet)
     exporter.export_excel()

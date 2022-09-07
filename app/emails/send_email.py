@@ -1,86 +1,72 @@
-import os
-import time
-from email.mime.text import MIMEText
+import argparse
+import logging
+from typing import Optional
 
 from tqdm import tqdm
-
 from app.db.database import get_db
-from app.emails.email_logger import logging
-from app.models import EmailAddress, EmailType, Genre, Song
 
-from .mail import EmailParser, EmailSender
+from app.modules.genres.services import GenreService
+from app.modules.songs.schemas import SongGenreEnum
+from app.modules.songs.services import SongService
 
-if __name__ == "__main__":
+from .mail import EmailParser, EmailService
+
+parser = argparse.ArgumentParser(description="Send emails.")
+parser.add_argument(
+    "songs",
+    type=str,
+    help="Song to test",
+)
+parser.add_argument(
+    "--subject",
+    type=str,
+    help="Email's subject",
+)
+
+
+args = parser.parse_args()
+song_name = args.songs
+subject = args.subject
+
+
+def main(song_name: str, subject: Optional[str], recipients: Optional[list[str]]):
     session = next(get_db())
+    song = SongService.get_song(session, song_name)
+    song_genres = song.genres
+    if not song_genres:
+        raise Exception(f"Song {song.name} has no genre.")
+    song_genres = [genre.name for genre in song_genres]
 
-    EMAIL_ADDRESS = os.environ.get("RAMPAK_EMAIL")
-    EMAIL_PASSWORD = os.environ.get("RAMPAK_AUTH")
+    email_service = EmailService()
+    email_to_use, password_to_use, template = email_service.get_email_headline(song_genres)
+    EMAIL_ADDRESS, EMAIL_PASSWORD = email_service.set_email_headline(email_to_use, password_to_use)
 
-    if not EMAIL_ADDRESS:
-        raise Exception("No Email Address")
-    if not EMAIL_PASSWORD:
-        raise Exception("No Email Password")
+    all_genre = GenreService.get_genre(session, SongGenreEnum.all_genre)
+    email_parser = EmailParser(template)
 
-    with open(r"app/emails/templates/RAMPAK_template.txt", "r") as f:
-        template = f.read()
+    if not recipients:
+        recipients = email_parser.get_recipients(song, all_genre.contacts)
 
-    parser = EmailParser(template)
-
-    song_name = "Chase It"
-    song = session.query(Song).filter_by(name=song_name).first()
-    all_genre = session.query(Genre).filter_by(name="All Genres").first()
-
-    if not song:
-        raise Exception("Song Not Found!")
-
-    recipients = parser.get_recipients(song, all_genre.contacts)
-    subject = parser.get_subject(song.name)
+    if not subject:
+        subject = email_parser.get_subject()
 
     for recipient in tqdm(recipients):
-        email = session.query(EmailAddress).filter_by(address=recipient).first()
-        contact = email.contact
-        email_type = session.query(EmailType).filter_by(id=email.email_type_id).first()
-
-        if not email_type:
-            continue
-
-        roster_name = None
-
-        message = parser.get_message(
-            # email_type=email_type.name, # HACK: When song genre == "EDM", change to "RAMPAK Email"
-            email_type="RAMPAK Email",
-            song_link=song.link,
-            contact_name=contact.name,
-            roster_name=roster_name,
-        )
-
-        if not message:
-            raise Exception("No Message to send.")
-
-        mail = EmailSender(
-            EMAIL_ADDRESS=EMAIL_ADDRESS,
-            EMAIL_PASSWORD=EMAIL_PASSWORD,
+        mail_sender, email_object = email_service.compose_email(
             recipient=recipient,
-            # recipient="ralie139@gmail.com",
             subject=subject,
-            message=MIMEText(message, "html"),
+            email_template=template,
+            song=song,
+            email_address=EMAIL_ADDRESS,
+            email_password=EMAIL_PASSWORD,
+            session=session,
         )
-        # To send an email, change song_name, recipient and uncomment code below
-
-        try:
-            pass
-            mail.send()
-            logging.warning(
-                f"Mail Sent. Sent from: {EMAIL_ADDRESS}. Contact: {contact.name}. Recipient: {recipient}. Song: {song.name}. Email Type: {email_type.name}"
+        email_service.send_email(mail_sender)
+        if not recipients:
+            logging.info(
+                f"Mail Sent. Sent from: {mail_sender.EMAIL_ADDRESS}. Recipient: {mail_sender.recipient}. Song: {song.name}. Email Template: {template}"
             )
-        except Exception:
-            try:
-                print("SMTP Error, attempting again in 5 minutes...")
-                time.sleep(5 * 60)
-                mail.send()
-                print("Resumed successfully :)")
-            except Exception:
-                raise Exception("Failed to send email :(")
-        email.songs.append(song)
-        session.add(email)
-        session.commit()
+            email_service.register_to_db(email_object=email_object, song=song)
+
+
+if __name__ == "__main__":
+    main(song_name, subject, recipients=None)

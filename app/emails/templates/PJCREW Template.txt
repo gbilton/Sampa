@@ -1,8 +1,8 @@
 Hey [CONTACT_NAME],
 
-[MESSAGE]
+We are Pie and Raff, a songwriting and production duo. We made this demo that we think might be interesting for you guys! Would love to get your feedback on what you think or what you guys are looking for. Let us know!
 
 [SONG_LINK]
 
-Cheers,
+Best regards,
 [AUTHOR]

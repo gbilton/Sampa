@@ -44,8 +44,7 @@ class SongService:
         return response
 
     @classmethod
-    def get_song(cls, song_name: str):
-        session = next(get_db())
+    def get_song(cls, session, song_name: str):
         song = session.query(Song).filter_by(name=song_name).first()
         if not song:
             raise Exception("Song Not Found!")

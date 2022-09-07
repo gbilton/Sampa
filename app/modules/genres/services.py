@@ -15,9 +15,8 @@ class GenreService:
         session.commit()
 
     @classmethod
-    def get_genre(cls, name):
-        session = next(get_db())
+    def get_genre(cls, session, name: str):
         genre = session.query(Genre).filter_by(name=name).first()
         if not genre:
-            raise ("No genre found!")
+            raise Exception("No genre found!")
         return genre
