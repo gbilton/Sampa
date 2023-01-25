@@ -2,3 +2,5 @@ venv
 .venv
 __pycache__
 /Excel
+# Ignore dynaconf secret files
+.secrets.*

@@ -13,6 +13,7 @@ from app.modules.contacts.models import Contact
 from app.modules.emails.models import EmailAddress, sent_table
 from app.modules.songs.models import Song
 from app.modules.songs.schemas import SongGenreEnum
+from config import settings
 
 
 class EmailTemplateEnum(str, Enum):
@@ -26,9 +27,9 @@ class EmailParser:
 
     def get_subject(self) -> str:
         if self.template == EmailTemplateEnum.rampak_template:
-            subject = "Greetings earthlings let us know what you think!"
+            subject = "Think you might like this Demo! Let us know your thoughts ;)"
         elif self.template == EmailTemplateEnum.pjcrew_template:
-            subject = "Hope you're having a jolly good week!"
+            subject = "Think you might like this Demo! Let us know your thoughts ;)"
         else:
             raise Exception(f"Invalid template: '{self.template}'")
         return subject
@@ -227,12 +228,11 @@ class EmailService:
         else:
             email = "PJCREW_EMAIL"
             password = "PJCREW_AUTH"
-            template = EmailTemplateEnum.pjcrew_template
         return email, password, template
 
     def set_email_headline(self, email: str, password: str):
-        EMAIL_ADDRESS = os.environ.get(email)
-        EMAIL_PASSWORD = os.environ.get(password)
+        EMAIL_ADDRESS = settings[email]
+        EMAIL_PASSWORD = settings[password]
         if not EMAIL_ADDRESS:
             raise Exception("No Email Address")
         if not EMAIL_PASSWORD:

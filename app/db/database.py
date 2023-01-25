@@ -4,7 +4,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres@localhost:5432/sampa"
+from config import settings
+
+SQLALCHEMY_DATABASE_URL = (
+    f"postgresql://{settings.POSTGRESQL_USER}:{settings.POSTGRESQL_PASSWORD}@localhost:5432/sampa"
+)
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 

@@ -30,7 +30,7 @@ categories = (Category, ["Publisher", "Label", "Management", "Full Service", "Ar
 genres = (Genre, ["Hip Hop", "Country", "All Genres", "Pop", "EDM", "Alt Pop"])
 commands = (
     Command,
-    ["Not Emailing", "VIP", "Emailing", "Email not working", "Spam", "Demo Drop"],
+    ["Not Emailing", "VIP", "Emailing", "Email not working", "Spam", "Demo Drop", "Blocked"],
 )
 email_types = (
     EmailType,

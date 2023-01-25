@@ -39,7 +39,7 @@ class ExcelExporter:
 
 
 if __name__ == "__main__":
-    path = r"~/Personal/sampa-back/Excel/HUSTLE(32).xlsx"
+    path = r"~/Personal/sampa/Excel/HUSTLE.xlsx"
     sheet = "Emails"
     exporter = ExcelExporter(path, sheet)
     exporter.export_excel()

@@ -386,7 +386,7 @@ if __name__ == "__main__":
     initializer = Initializer()
     initializer.add_bulk_data(data)
 
-    path = r"~/Personal/sampa-back/Excel/HUSTLE(32).xlsx"
+    path = r"~/Personal/sampa/Excel/HUSTLE.xlsx"
     sheet = "Emails"
     importer = ExcelImporter(path, sheet)
     importer.create_all()
