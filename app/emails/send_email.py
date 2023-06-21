@@ -3,8 +3,8 @@ import logging
 from typing import Optional
 
 from tqdm import tqdm
-from app.db.database import get_db
 
+from app.db.database import get_db
 from app.modules.genres.services import GenreService
 from app.modules.songs.schemas import SongGenreEnum
 from app.modules.songs.services import SongService
@@ -38,8 +38,12 @@ def main(song_name: str, subject: Optional[str], recipients: Optional[list[str]]
     song_genres = [genre.name for genre in song_genres]
 
     email_service = EmailService()
-    email_to_use, password_to_use, template = email_service.get_email_headline(song_genres)
-    EMAIL_ADDRESS, EMAIL_PASSWORD = email_service.set_email_headline(email_to_use, password_to_use)
+    email_to_use, password_to_use, template = email_service.get_email_headline(
+        song_genres
+    )
+    EMAIL_ADDRESS, EMAIL_PASSWORD = email_service.set_email_headline(
+        email_to_use, password_to_use
+    )
 
     all_genre = GenreService.get_genre(session, SongGenreEnum.all_genre)
     email_parser = EmailParser(template)
@@ -61,11 +65,10 @@ def main(song_name: str, subject: Optional[str], recipients: Optional[list[str]]
             session=session,
         )
         email_service.send_email(mail_sender)
-        if not recipients:
-            logging.info(
-                f"Mail Sent. Sent from: {mail_sender.EMAIL_ADDRESS}. Recipient: {mail_sender.recipient}. Song: {song.name}. Email Template: {template}"
-            )
-            email_service.register_to_db(email_object=email_object, song=song)
+        logging.info(
+            f"Mail Sent. Sent from: {mail_sender.EMAIL_ADDRESS}. Recipient: {mail_sender.recipient}. Song: {song.name}. Email Template: {template}"
+        )
+        email_service.register_to_db(email_object=email_object, song=song)
 
 
 if __name__ == "__main__":

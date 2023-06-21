@@ -1,10 +1,12 @@
 import os
+import re
 from typing import List
 
 import pandas as pd
 from pandas.core.frame import DataFrame
 
 from app.db.database import get_db
+from app.exceptions import DuplicateEmailException
 from app.modules.categories.models import Category
 from app.modules.comments.models import Comment
 from app.modules.companies.models import Company
@@ -76,7 +78,9 @@ class ExcelImporter:
 
         contacts = []
         for row in range(len(df)):
-            company_id = self._get_object_id(Company, str(df.loc[row, "Company"]).strip())
+            company_id = self._get_object_id(
+                Company, str(df.loc[row, "Company"]).strip()
+            )
 
             if not company_id:
                 raise Exception(f"Contact in row {row + 2} Company not in db.")
@@ -104,13 +108,19 @@ class ExcelImporter:
             contact_id = self._get_object_id(Contact, str(df.loc[row, "Name"]).strip())
 
             if not contact_id:
-                raise Exception(f"Email address without specified contact on row {row+2}")
+                raise Exception(
+                    f"Email address without specified contact on row {row+2}"
+                )
 
-            command_id = self._get_object_id(Command, str(df.loc[row, "Command"]).strip())
+            command_id = self._get_object_id(
+                Command, str(df.loc[row, "Command"]).strip()
+            )
             if not command_id:
                 raise Exception(f"Contact in row {row + 2} Command not in db.")
 
-            email_type_id = self._get_object_id(EmailType, str(df.loc[row, "Email Type"]).strip())
+            email_type_id = self._get_object_id(
+                EmailType, str(df.loc[row, "Email Type"]).strip()
+            )
             if not email_type_id:
                 raise Exception(f"Contact in row {row + 2} Email Type not in db.")
 
@@ -172,7 +182,9 @@ class ExcelImporter:
             for roster_name in roster_names:
                 roster = self.session.query(Roster).filter_by(name=roster_name).first()
                 if not roster:
-                    raise Exception(f"Roster {roster_name} not found in db. Row {row+2}")
+                    raise Exception(
+                        f"Roster {roster_name} not found in db. Row {row+2}"
+                    )
                 if roster not in contact.rosters:
                     contact.rosters.append(roster)
                     self.session.add(contact)
@@ -244,14 +256,20 @@ class ExcelImporter:
         songs = self.session.query(Song).all()
         for row in range(len(df)):
             email_address = str(df.loc[row, "Email"]).strip()
-            email = self.session.query(EmailAddress).filter_by(address=email_address).first()
+            email = (
+                self.session.query(EmailAddress)
+                .filter_by(address=email_address)
+                .first()
+            )
             if not email:
                 raise Exception(f"Email {email_address} not found in db.")
             for song in songs:
                 try:
                     sent = str(df.loc[row, f"{song.name}"]).strip()
                 except KeyError:
-                    raise KeyError(f"There is no column named {song.name}, tip: check spelling")
+                    raise KeyError(
+                        f"There is no column named {song.name}, tip: check spelling"
+                    )
                 if sent:
                     if song not in email.songs:
                         email.songs.append(song)
@@ -287,7 +305,11 @@ class ExcelImporter:
                 sent = df.loc[row, song_name]
                 email_address = str(df.loc[row, "Email"]).strip()
 
-                email = self.session.query(EmailAddress).filter_by(name=email_address).first()
+                email = (
+                    self.session.query(EmailAddress)
+                    .filter_by(name=email_address)
+                    .first()
+                )
                 song = self.session.query(Song).filter_by(name=song_name).first()
 
                 if not email:
@@ -312,9 +334,26 @@ class ExcelImporter:
         return True
 
     def _verify_excel(self):
+        self._verify_duplicate_emails()
         self._verify_extension()
         self._verify_columns()
         self._verify_rows()
+
+    def _verify_duplicate_emails(self):
+        def is_valid_email(email):
+            if not isinstance(email, str):
+                raise Exception("Email is not string.")
+            pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+            return re.match(pattern, email) is not None
+
+        valid_emails = self.df["Email"].apply(is_valid_email)
+        valid_emails_df = self.df[valid_emails]
+        duplicate_emails = valid_emails_df.duplicated("Email", keep=False)
+        duplicate_rows = valid_emails_df[duplicate_emails]
+        if not duplicate_rows.empty:
+            raise DuplicateEmailException(
+                f"There are duplicate emails: {duplicate_rows['Email']}"
+            )
 
     def _verify_extension(self):
         _, file_extension = os.path.splitext(self.path)
@@ -354,7 +393,8 @@ class ExcelImporter:
             "Genre",
         ]
         missing_rows = [
-            i + 2 for i in self.df[self.df[essential_columns].isnull().any(axis=1)].index
+            i + 2
+            for i in self.df[self.df[essential_columns].isnull().any(axis=1)].index
         ]
         if missing_rows:
             raise Exception(f"Missing values in rows {missing_rows}")

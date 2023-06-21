@@ -13,6 +13,15 @@
                 "app.main:app"
             ],
             "jinja": true
-        }
+        },
+        {
+            "name": "Python:email",
+            "type": "python",
+            "request": "launch",
+            "module": "app.emails.send_email",
+            "args": [
+                 "Overcomplicating Love"
+            ],
+        },
     ]
 }

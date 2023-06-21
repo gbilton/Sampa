@@ -29,7 +29,7 @@ class EmailParser:
         if self.template == EmailTemplateEnum.rampak_template:
             subject = "Think you might like this Demo! Let us know your thoughts ;)"
         elif self.template == EmailTemplateEnum.pjcrew_template:
-            subject = "Think you might like this Demo! Let us know your thoughts ;)"
+            subject = "Brazilian Producers do Kpop"
         else:
             raise Exception(f"Invalid template: '{self.template}'")
         return subject
@@ -67,7 +67,7 @@ class EmailParser:
         elif self.template == EmailTemplateEnum.pjcrew_template:
             with open("app/emails/templates/PJCREW Template.txt", "r") as f:
                 template = f.read()
-            message = "We are Pie and Raff, a songwriting and production duo. We made this demo that we think might be interesting for you guys! Would love to get your feedback on what you think or what you guys are looking for. Let us know!"
+            message = "We are Pie and Raff, a songwriting and production duo. We just finished this Kpop song that we think has a lot of potential. We would love to work with you to get it released."
             final_message = self.base_parsing(
                 template=template,
                 contact_name=contact_name,
@@ -80,7 +80,9 @@ class EmailParser:
             raise Exception(f"Invalid template: '{self.template}'")
         return final_message
 
-    def base_parsing(self, template, contact_name, message, song_link, song_name, author="PJCrew"):
+    def base_parsing(
+        self, template, contact_name, message, song_link, song_name, author="PJCrew"
+    ):
         template = template.replace("[CONTACT_NAME]", contact_name)
         template = template.replace("[MESSAGE]", message)
         template = template.replace("[SONG_LINK]", song_link)
@@ -88,7 +90,9 @@ class EmailParser:
         template = template.replace("[SONG_NAME]", song_name)
         return template
 
-    def get_recipients(self, song: Song, all_genre_contacts: List[Contact]) -> List[str]:
+    def get_recipients(
+        self, song: Song, all_genre_contacts: List[Contact]
+    ) -> List[str]:
         recipients = []
         for genre in song.genres:
             recipients += self._get_valid_emails(song, genre.contacts)
@@ -218,16 +222,19 @@ class EmailService:
             except Exception:
                 raise Exception("Could not insert sent song to database.")
 
-    def get_email_headline(self, song_genres: list[SongGenreEnum]) -> Tuple[str, str, str]:
+    def get_email_headline(
+        self, song_genres: list[SongGenreEnum]
+    ) -> Tuple[str, str, str]:
         if SongGenreEnum.edm in song_genres:
-            if len(song_genres) != 1:
-                raise Exception("EDM must be unique song genre.")
+            # if len(song_genres) != 1:
+            # raise Exception("EDM must be unique song genre.")
             email = "RAMPAK_EMAIL"
             password = "RAMPAK_AUTH"
             template = EmailTemplateEnum.rampak_template
         else:
             email = "PJCREW_EMAIL"
             password = "PJCREW_AUTH"
+            template = EmailTemplateEnum.pjcrew_template
         return email, password, template
 
     def set_email_headline(self, email: str, password: str):
